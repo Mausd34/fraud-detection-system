@@ -1,25 +1,33 @@
 # Fraud Detection System
 
-A professional machine-learning API for transaction fraud-risk scoring.
+Portfolio-grade transaction fraud-risk scoring service with a responsive browser dashboard and REST API.
 
 ## Features
-- Fraud-risk prediction API
-- Deterministic demo model pipeline
-- Validation and health endpoints
-- Precision/recall/F1 evaluation utilities
-- Docker-ready FastAPI service
-- Testable architecture
+- Transaction validation and risk scoring
+- Low/medium/high risk classification
+- Approve/review decision support
+- Browser dashboard at `/`
+- Swagger/OpenAPI at `/docs`
+- Health endpoint
+- Automated tests
+- Docker-ready deployment
 
 ## Stack
-Python · FastAPI · scikit-learn · pandas · Docker
+Python · FastAPI · Pydantic · scikit-learn-ready architecture · Docker
 
-## Quick start
+## Run locally
 ```bash
 python -m venv .venv
-# Windows: .venv\Scripts\activate
+.venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn api:app --reload
 ```
-Open `http://127.0.0.1:8000/docs`.
+Open `http://127.0.0.1:8000/`.
 
-> This portfolio system is a demonstration and must not be used as the sole basis for financial decisions.
+## Docker
+```bash
+docker build -t fraud-detection-system .
+docker run -p 8000:8000 fraud-detection-system
+```
+
+> Demo decision-support system. It is not a substitute for a regulated financial fraud-control process.
