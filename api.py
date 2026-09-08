@@ -1,8 +1,8 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
-import math
 
-app=FastAPI(title='Fraud Detection API',version='1.0.0')
+app=FastAPI(title='Fraud Detection System API',version='2.0.0',description='Transaction fraud-risk scoring service')
 class Transaction(BaseModel):
     amount: float=Field(gt=0)
     account_age_days: int=Field(ge=0)
@@ -18,12 +18,13 @@ def score(t: Transaction):
     if t.velocity_24h>=5:risk+=15
     if t.distance_km>=500:risk+=10
     if t.foreign:risk+=10
-    risk=min(risk,100); label='high' if risk>=70 else 'medium' if risk>=40 else 'low'
-    return risk,label
-
+    risk=min(risk,100)
+    level='high' if risk>=70 else 'medium' if risk>=40 else 'low'
+    return risk,level
 @app.get('/health')
-def health(): return {'status':'ok','service':'fraud-detection-system'}
+def health(): return {'status':'ok','service':'fraud-detection-system','version':'2.0.0'}
 @app.post('/predict')
-def predict(t: Transaction):
-    risk,label=score(t)
-    return {'risk_score':risk,'risk_level':label,'decision':'review' if risk>=40 else 'approve','model':'rule-based-demo-v1'}
+def predict(t:Transaction):
+    risk,level=score(t)
+    return {'risk_score':risk,'risk_level':level,'decision':'review' if risk>=40 else 'approve','model':'risk-engine-v2'}
+app.mount('/',StaticFiles(directory='web',html=True),name='web')
