@@ -1,1 +1,90 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fraud Detection</title><style>body{font-family:Inter,Arial;max-width:900px;margin:40px auto;padding:20px;background:#f6f7fb}main{background:white;padding:28px;border-radius:18px;box-shadow:0 8px 30px #0001}input,button{padding:12px;margin:6px;border:1px solid #ddd;border-radius:10px}button{cursor:pointer}.result{margin-top:20px;padding:18px;border-radius:12px;background:#f1f5f9}</style></head><body><main><h1>Fraud Detection System</h1><p>Transaction risk scoring dashboard</p><div><input id="amount" type="number" placeholder="Amount" value="1200"><input id="age" type="number" placeholder="Account age days" value="60"><input id="velocity" type="number" placeholder="24h velocity" value="2"><input id="distance" type="number" placeholder="Distance km" value="50"><label><input id="foreign" type="checkbox"> Foreign</label><button onclick="predict()">Analyze Risk</button></div><div id="out" class="result">Enter transaction data.</div></main><script>async function predict(){let b={amount:+amount.value,account_age_days:+age.value,velocity_24h:+velocity.value,distance_km:+distance.value,foreign:foreign.checked};let r=await fetch('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});out.innerHTML='<pre>'+JSON.stringify(await r.json(),null,2)+'</pre>'}</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="Educational transaction anomaly scoring dashboard.">
+  <title>FraudLens — Fraud Detection Demo</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1020;--panel:#121a2c;--line:#26334c;--text:#eef3ff;--muted:#9eabc4;--accent:#7c9cff;--green:#49d7a1;--yellow:#ffcf70;--red:#ff7b8b}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1b2b4c 0,#0b1020 55%);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);min-height:100vh}
+    .wrap{max-width:1100px;margin:auto;padding:28px 18px 48px}.top{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:28px}.brand{display:flex;align-items:center;gap:12px}.logo{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#7c9cff,#9e7cff);font-size:23px;font-weight:800;color:#0b1020}.brand h1{font-size:20px;margin:0}.brand p{margin:2px 0 0;color:var(--muted);font-size:12px}.pill{border:1px solid #34435e;border-radius:999px;padding:7px 12px;color:#c7d4ed;font-size:12px}
+    .hero{margin:18px 0 24px}.eyebrow{color:#a8bbff;text-transform:uppercase;letter-spacing:.15em;font-size:11px;font-weight:700}.hero h2{font-size:clamp(27px,5vw,42px);line-height:1.12;letter-spacing:-.04em;margin:9px 0}.hero p{max-width:700px;color:var(--muted);margin:0}
+    .grid{display:grid;grid-template-columns:320px 1fr;gap:18px}.card{background:rgba(18,26,44,.92);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 18px 60px #0002}.card h3{margin:0 0 4px;font-size:17px}.sub{color:var(--muted);font-size:13px;margin:0 0 18px}.field{display:block;margin:13px 0}.field span{display:block;color:#c6d1e6;font-size:12px;margin-bottom:6px}.field input{width:100%;background:#0b1222;border:1px solid #33425d;border-radius:10px;padding:11px 12px;color:var(--text);font:inherit;outline:none}.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #7c9cff20}.check{display:flex;align-items:center;gap:9px;color:#c6d1e6;font-size:13px;margin:14px 0}.btn{border:0;border-radius:11px;padding:12px 15px;font-weight:700;cursor:pointer;font:inherit}.primary{background:var(--accent);color:#10172b;width:100%}.secondary{background:#202c43;color:#dce6ff;border:1px solid #394966}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions .btn{flex:1}.hint{font-size:12px;color:var(--muted);margin:12px 0 0}.notice{margin-top:18px;padding:12px;border-radius:12px;background:#2a2417;border:1px solid #59472b;color:#f3dba9;font-size:12px}.status{margin-top:12px;color:var(--muted);font-size:13px;min-height:20px;overflow-wrap:anywhere}.result-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.status-tag{font-size:11px;border-radius:999px;padding:5px 9px;background:#1d2940;color:#c8d5f1}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}.metric{background:#0b1222;border:1px solid #27344b;border-radius:14px;padding:15px}.metric span{display:block;font-size:12px;color:var(--muted)}.metric strong{display:block;font-size:25px;margin-top:7px;overflow-wrap:anywhere}.bar{height:9px;background:#28344a;border-radius:99px;overflow:hidden;margin:12px 0 5px}.bar div{height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--yellow),var(--red));transition:width .3s}.empty{display:grid;place-items:center;text-align:center;min-height:260px;color:var(--muted);border:1px dashed #35425a;border-radius:15px;padding:20px}.empty b{display:block;color:#e5ecff;font-size:15px;margin-bottom:5px}.foot{color:#7786a2;font-size:12px;text-align:center;margin-top:22px}.hidden{display:none!important}
+    @media(max-width:800px){.grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.top{align-items:flex-start}.pill{max-width:150px;text-align:center}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><div class="brand"><div class="logo">F</div><div><h1>FraudLens</h1><p>TRANSACTION RISK LAB</p></div></div><span class="pill">EDUCATIONAL DEMO</span></header>
+  <section class="hero"><div class="eyebrow">Machine learning · Anomaly detection</div><h2>See unusual transactions<br>before they raise a flag.</h2><p>Explore how transaction attributes affect an illustrative anomaly score. This demo uses synthetic data and is not a production fraud detector.</p></section>
+  <div class="grid">
+    <aside class="card">
+      <h3>Account access</h3><p class="sub">Create a demo account or sign in.</p>
+      <label class="field"><span>Username (letters, numbers, _ or -)</span><input id="username" autocomplete="username" minlength="3" maxlength="80" value=""></label>
+      <label class="field"><span>Password (at least 8 characters)</span><input id="password" type="password" autocomplete="current-password" minlength="8" maxlength="128"></label>
+      <div class="actions"><button class="btn secondary" id="registerBtn" type="button">Register</button><button class="btn secondary" id="loginBtn" type="button">Log in</button></div>
+      <div class="status" id="authStatus" role="status" aria-live="polite">You are signed out.</div>
+      <button class="btn secondary hidden" id="logoutBtn" type="button" style="width:100%;margin-top:8px">Log out</button>
+      <div class="notice">Privacy note: use a fictional username and password. This is a learning project, not a financial service.</div>
+    </aside>
+    <main class="card">
+      <div class="result-head"><div><h3>Transaction analysis</h3><p class="sub">Enter a hypothetical transaction profile.</p></div><span class="status-tag" id="sessionTag">LOGIN REQUIRED</span></div>
+      <form id="predictForm">
+        <label class="field"><span>Transaction amount</span><input id="amount" type="number" min="0.01" max="1000000000" step="0.01" value="1200" required></label>
+        <label class="field"><span>Account age (days)</span><input id="age" type="number" min="0" max="100000" step="1" value="60" required></label>
+        <label class="field"><span>Transactions in last 24 hours</span><input id="velocity" type="number" min="0" max="100000" step="1" value="2" required></label>
+        <label class="field"><span>Distance from usual location (km)</span><input id="distance" type="number" min="0" max="50000" step="0.1" value="50" required></label>
+        <label class="check"><input id="foreign" type="checkbox"> Transaction is from another country</label>
+        <button class="btn primary" id="analyzeBtn" type="submit" disabled>Sign in to analyze</button>
+      </form>
+      <div id="result" style="margin-top:18px"><div class="empty"><div><b>Ready when you are</b>Sign in, then analyze a hypothetical transaction to view its demo risk score.</div></div></div>
+    </main>
+  </div>
+  <p class="foot">FraudLens · Isolation Forest · Synthetic training data · No real financial decisions</p>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+let accessToken = sessionStorage.getItem("fraudlens_token") || "";
+function setStatus(message, isError=false) { $("authStatus").textContent=message; $("authStatus").style.color=isError?"#ff9eaa":"#9eabc4"; }
+function setSession(username) {
+  const loggedIn=Boolean(accessToken);
+  $("sessionTag").textContent=loggedIn ? "SIGNED IN" : "LOGIN REQUIRED";
+  $("analyzeBtn").disabled=!loggedIn;
+  $("analyzeBtn").textContent=loggedIn ? "Analyze transaction" : "Sign in to analyze";
+  $("logoutBtn").classList.toggle("hidden",!loggedIn);
+  if(username) setStatus("Signed in as "+username+".");
+}
+async function auth(path) {
+  const username=$("username").value.trim(), password=$("password").value;
+  if(!username || !password) { setStatus("Enter a username and password first.",true); return; }
+  try {
+    const response=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password})});
+    const data=await response.json();
+    if(!response.ok) throw new Error(data.detail || "Request failed");
+    if(path.endsWith("register")) { setStatus("Account created. Now log in."); return; }
+    accessToken=data.access_token; sessionStorage.setItem("fraudlens_token",accessToken); setSession(data.user?.username || username);
+  } catch(error) { setStatus(error.message || "Unable to connect to API.",true); }
+}
+$("registerBtn").addEventListener("click",()=>auth("/auth/register"));
+$("loginBtn").addEventListener("click",()=>auth("/auth/login"));
+$("logoutBtn").addEventListener("click",()=>{accessToken="";sessionStorage.removeItem("fraudlens_token");setSession();setStatus("You are signed out.");});
+$("predictForm").addEventListener("submit",async (event)=>{
+  event.preventDefault();
+  if(!accessToken) return;
+  const transaction={amount:Number($("amount").value),account_age_days:Number($("age").value),velocity_24h:Number($("velocity").value),distance_km:Number($("distance").value),foreign:$("foreign").checked};
+  $("result").innerHTML='<div class="empty">Analyzing transaction…</div>';
+  try {
+    const response=await fetch("/predict",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+accessToken},body:JSON.stringify(transaction)});
+    const data=await response.json();
+    if(response.status===401){accessToken="";sessionStorage.removeItem("fraudlens_token");setSession();throw new Error("Session expired. Please log in again.");}
+    if(!response.ok) throw new Error(data.detail || "Prediction failed");
+    const color=data.risk_level==="high"?"#ff7b8b":data.risk_level==="medium"?"#ffcf70":"#49d7a1";
+    $("result").innerHTML='<div class="result-head"><div><h3>Analysis result</h3><p class="sub">Model output for the submitted demo transaction.</p></div><span class="status-tag" style="color:'+color+'">'+data.risk_level.toUpperCase()+' RISK</span></div><div class="metrics"><div class="metric"><span>Illustrative risk score</span><strong>'+Number(data.risk_score).toFixed(1)+'/100</strong></div><div class="metric"><span>Suggested action</span><strong style="font-size:20px">'+data.decision.toUpperCase()+'</strong></div><div class="metric"><span>Model</span><strong style="font-size:16px">Isolation Forest</strong></div></div><div class="bar"><div style="width:'+Math.max(0,Math.min(100,Number(data.risk_score)))+'%"></div></div><p class="hint">This is an anomaly score, not a calibrated probability that fraud occurred.</p><div class="notice">'+data.notice+'</div>';
+  } catch(error) { $("result").innerHTML='<div class="notice">'+String(error.message || "Request failed").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))+'</div>'; }
+});
+if(accessToken) setSession("previous session");
+</script>
+</body>
+</html>
