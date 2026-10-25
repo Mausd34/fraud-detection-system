@@ -11,3 +11,4 @@ htmlcov/
 *.sqlite3
 .vscode/
 .idea/
+*.db
